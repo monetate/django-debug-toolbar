@@ -2,6 +2,8 @@
 Debug Toolbar middleware
 """
 import imp
+import json
+from jsonrpc.site import MonetateJSONEncoder
 import threading
 
 from django.conf import settings
@@ -14,6 +16,8 @@ import debug_toolbar.urls
 from debug_toolbar.toolbar.loader import DebugToolbar
 
 _HTML_TYPES = ('text/html', 'application/xhtml+xml')
+_JSONRPC_TYPES = ('application/json-rpc')
+
 threading._DummyThread._Thread__stop = lambda x: 1  # Handles python threading module bug - http://bugs.python.org/issue14308
 
 
@@ -117,7 +121,7 @@ class DebugToolbarMiddleware(object):
         __traceback_hide__ = True
         ident = threading.currentThread().ident
         toolbar = self.__class__.debug_toolbars.get(ident)
-        if not toolbar or request.is_ajax():
+        if not toolbar or request.is_ajax(): # NB: JSON-RPC calls not setting HTTP_X_REQUESTED_WITH: XMLHttpRequest
             return response
         if isinstance(response, HttpResponseRedirect):
             if not toolbar.config['INTERCEPT_REDIRECTS'] or request.is_ajax():
@@ -138,6 +142,17 @@ class DebugToolbarMiddleware(object):
                 smart_unicode(response.content),
                 self.tag,
                 smart_unicode(toolbar.render_toolbar() + self.tag))
+            if response.get('Content-Length', None):
+                response['Content-Length'] = len(response.content)
+        # Add djdt panel to JSON-RPC responses
+        if ('gzip' not in response.get('Content-Encoding', '') and
+                response.get('Content-Type', '').split(';')[0] in _JSONRPC_TYPES):
+            for panel in toolbar.panels:
+                panel.process_response(request, response)
+            response_json = json.loads(response.content)
+            response_key = "JSON-RPC-%s" % response_json.get('id', 'NoResponseId')
+            response_json['djdt'] = dict(response_key=response_key, toolbar=toolbar.render_ajax(response_key))
+            response.content = json.dumps(response_json, cls=MonetateJSONEncoder)
             if response.get('Content-Length', None):
                 response['Content-Length'] = len(response.content)
         del self.__class__.debug_toolbars[ident]

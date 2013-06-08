@@ -59,10 +59,22 @@ class DebugToolbar(object):
         context = self.template_context.copy()
         context.update({
             'panels': self.panels,
+            'response_key': "HTML",
         })
 
         return render_to_string('debug_toolbar/base.html', context)
 
+    def render_ajax(self, response_key):
+        """
+        Renders toolbar buttons and panels.
+        """
+        context = self.template_context.copy()
+        context.update({
+            'panels': self.panels,
+            'response_key': response_key,
+        })
+
+        return render_to_string('debug_toolbar/request.html', context)
 
 panel_classes = []
 

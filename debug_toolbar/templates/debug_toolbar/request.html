@@ -1,0 +1,53 @@
+{% load i18n %}
+	<div style="display:none;" id="djDebugToolbar{{ response_key }}" class="djDebugToolbar">
+		<ul id="djDebugPanelList{{ response_key }}" class="djDebugPanelList">
+			{% if panels %}
+			<li>
+                <a id="djHideToolBarButton{{ response_key }}" class="djHideToolBarButton" href="#" title="{% trans "Hide Toolbar" %}">
+                    {% trans "Hide" %} &raquo;
+                </a>
+            </li>
+			{% else %}
+			<li id="djDebugButton">DEBUG</li>
+			{% endif %}
+            <li>
+                <div class="contentless">
+                    {% trans "Response Id" %}
+                    <br /><small class="djDebugResponseKey">{{ response_key }}</small>
+                </div>
+            </li>
+			{% for panel in panels %}
+				<li class="djDebugPanelButton">
+					{% if panel.has_content %}
+						<a href="{{ panel.url|default:"#" }}" title="{{ panel.title }}" class="{{ panel.dom_id }}{{ response_key }}">
+					{% else %}
+					    <div class="contentless">
+					{% endif %}
+					{{ panel.nav_title }}
+					{% with panel.nav_subtitle as subtitle %}
+						{% if subtitle %}<br /><small>{{ subtitle }}</small>{% endif %}
+					{% endwith %}
+					{% if panel.has_content %}
+						</a>
+					{% else %}
+					    </div>
+					{% endif %}
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+	{% for panel in panels %}
+		{% if panel.has_content %}
+			<div id="{{ panel.dom_id }}{{ response_key }}" class="panelContent">
+				<div class="djDebugPanelTitle">
+					<a href="" class="djDebugClose">{% trans "Close" %}</a>
+					<h3>{{ panel.title|safe }}</h3>
+				</div>
+				<div class="djDebugPanelContent">
+				    <div class="scroll">
+				        {{ panel.content|safe }}
+				    </div>
+				</div>
+			</div>
+		{% endif %}
+	{% endfor %}

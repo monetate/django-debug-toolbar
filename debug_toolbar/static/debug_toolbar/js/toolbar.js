@@ -8,10 +8,18 @@ window.djdt = (function(window, document, jQuery) {
 			ready: []
 		},
 		isReady: false,
+        response_keys: ['HTML'],
+        selected_response_index: 0,
+        add_response_key: function(name) {
+             djdt.response_keys[djdt.response_keys.length] = name;
+        },
+        get_selected_response_key: function() {
+            return djdt.response_keys[djdt.selected_response_index];
+        },
 		init: function() {
 			$('#djDebug').show();
 			var current = null;
-			$('#djDebugPanelList li a').live('click', function() {
+			$('#djDebug ul.djDebugPanelList li a').live('click', function() {
 				if (!this.className) {
 					return false;
 				}
@@ -22,14 +30,14 @@ window.djdt = (function(window, document, jQuery) {
 				} else {
 					$('.panelContent').hide(); // Hide any that are already open
 					current.show();
-					$('#djDebugToolbar li').removeClass('active');
+					$('#djDebug .djDebugToolbar li').removeClass('active');
 					$(this).parent().addClass('active');
 				}
 				return false;
 			});
 			$('#djDebug a.djDebugClose').live('click', function() {
 				$(document).trigger('close.djDebug');
-				$('#djDebugToolbar li').removeClass('active');
+				$('#djDebug .djDebugToolbar li').removeClass('active');
 				return false;
 			});
 
@@ -122,7 +130,7 @@ window.djdt = (function(window, document, jQuery) {
 					subcalls.hide();
 				}
 			});
-			$('#djHideToolBarButton').click(function() {
+			$('#djDebug a.djHideToolBarButton').live('click', function() {
 				djdt.hide_toolbar(true);
 				return false;
 			});
@@ -141,11 +149,11 @@ window.djdt = (function(window, document, jQuery) {
 					$('.panelContent').hide();
 					return;
 				}
-				// Otherwise, just minimize the toolbar
-				if ($('#djDebugToolbar').is(':visible')) {
+				// Otherwise, just minimize the toolbars
+				// if ($('#djDebugToolbar').is(':visible')) {
 					djdt.hide_toolbar(true);
 					return;
-				}
+				// }
 			});
 			if ($.cookie(COOKIE_NAME)) {
 				djdt.hide_toolbar(false);
@@ -178,9 +186,9 @@ window.djdt = (function(window, document, jQuery) {
 			$('#djDebugWindow').hide();
 			// close all panels
 			$('.panelContent').hide();
-			$('#djDebugToolbar li').removeClass('active');
+			$('#djDebug .djDebugToolbar li').removeClass('active');
 			// finally close toolbar
-			$('#djDebugToolbar').hide('fast');
+			$('#djDebug .djDebugToolbar').hide('fast');
 			$('#djDebugToolbarHandle').show();
 			// Unbind keydown
 			$(document).unbind('keydown.djDebug');
@@ -197,18 +205,47 @@ window.djdt = (function(window, document, jQuery) {
 				if (e.keyCode == 27) {
 					djdt.close();
 				}
+                if (e.keyCode == 37) {
+					djdt.prev_toolbar();
+				}
+                if (e.keyCode == 39) {
+					djdt.next_toolbar();
+				}
 			});
 			$('#djDebugToolbarHandle').hide();
+            var toolbar_selector = '#djDebugToolbar' + djdt.get_selected_response_key()
 			if (animate) {
-				$('#djDebugToolbar').show('fast');
+				$(toolbar_selector).show('fast');
 			} else {
-				$('#djDebugToolbar').show();
+				$(toolbar_selector).show();
 			}
 			$.cookie(COOKIE_NAME, null, {
 				path: '/',
 				expires: -1
 			});
 		},
+        prev_toolbar: function() {
+            var count = djdt.response_keys.length;
+            if (count > 1) {
+			    djdt.hide_toolbar();
+                djdt.selected_response_index -= 1;
+                if (djdt.selected_response_index < 0) {
+                    djdt.selected_response_index = count - 1;
+                }
+                djdt.show_toolbar(false);
+            }
+        },
+        next_toolbar: function() {
+            var count = djdt.response_keys.length;
+            if (count > 1) {
+                djdt.hide_toolbar();
+                djdt.selected_response_index += 1;
+                if (djdt.selected_response_index > count - 1) {
+                    djdt.selected_response_index = 0;
+                }
+                djdt.show_toolbar(false);
+            }
+        },
 		toggle_arrow: function(elem) {
 			var uarr = String.fromCharCode(0x25b6);
 			var darr = String.fromCharCode(0x25bc);
@@ -220,7 +257,11 @@ window.djdt = (function(window, document, jQuery) {
 			} else {
 				djdt.events.ready.push(callback);
 			}
-		}
+		},
+        add_ajax_response: function(name, toolbar) {
+            djdt.add_response_key(name);
+            $('#djDebug').append(toolbar);
+        }
 	};
 	$(document).ready(function() {
 		djdt.init();
