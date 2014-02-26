@@ -10,11 +10,36 @@ window.djdt = (function(window, document, jQuery) {
 		isReady: false,
         response_keys: ['HTML'],
         selected_response_index: 0,
-        add_response_key: function(name) {
-             djdt.response_keys[djdt.response_keys.length] = name;
+        add_request: function(key, name) {
+            djdt.add_response_key(key);
+
+            var count = djdt.response_keys.length;
+            var link = $('<a class="djDebugRequestLink" href="#">')
+                .data('request', count - 1)
+                .click(djdt.handle_switch_click)
+                .text(name)
+
+            var listItem = $('<li class="djDebugRequest"/>').append(link);
+            $('#djDebugRequestsList').append(listItem);
+
+            var label = count + ' request' + (count == 1 ? '' : 's');
+            $('#djDebugRequestsLabel').text(label);
+        },
+        add_response_key: function(key) {
+             djdt.response_keys[djdt.response_keys.length] = key;
         },
         get_selected_response_key: function() {
             return djdt.response_keys[djdt.selected_response_index];
+        },
+        handle_switch_click: function(event) {
+            var responseIndex = $(this).data('request');
+            if (responseIndex != djdt.selected_response_index) {
+                $('.djDebugRequestLink').removeClass('current');
+                $(this).addClass('current');
+                djdt.selected_response_index = responseIndex;
+                djdt.hide_toolbar();
+                djdt.show_toolbar(false);
+            }
         },
 		init: function() {
 			$('#djDebug').show();
@@ -165,6 +190,9 @@ window.djdt = (function(window, document, jQuery) {
 			}, function(){
 				$(this).removeClass('djDebugHover');
 			});
+
+            $('#djDebug .djDebugRequestLink').click(djdt.handle_switch_click);
+
 			djdt.isReady = true;
 			$.each(djdt.events.ready, function(_, callback){
 				callback(djdt);
@@ -189,7 +217,8 @@ window.djdt = (function(window, document, jQuery) {
 			$('#djDebug .djDebugToolbar li').removeClass('active');
 			// finally close toolbar
 			$('#djDebug .djDebugToolbar').hide('fast');
-			$('#djDebugToolbarHandle').show();
+            $('#djDebugToolbarHandle').show();
+			$('#djDebugRequests').hide();
 			// Unbind keydown
 			$(document).unbind('keydown.djDebug');
 			if (setCookie) {
@@ -213,6 +242,7 @@ window.djdt = (function(window, document, jQuery) {
 				}
 			});
 			$('#djDebugToolbarHandle').hide();
+            $('#djDebugRequests').show();
             var toolbar_selector = '#djDebugToolbar' + djdt.get_selected_response_key()
 			if (animate) {
 				$(toolbar_selector).show('fast');
@@ -258,8 +288,8 @@ window.djdt = (function(window, document, jQuery) {
 				djdt.events.ready.push(callback);
 			}
 		},
-        add_ajax_response: function(name, toolbar) {
-            djdt.add_response_key(name);
+        add_ajax_response: function(key, name, toolbar) {
+            djdt.add_request(key, name);
             $('#djDebug').append(toolbar);
         }
 	};

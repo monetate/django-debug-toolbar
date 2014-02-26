@@ -631,3 +631,31 @@
         display: none;
     }
 }
+
+#djDebugRequests {
+    position: fixed;
+    bottom: 10px;
+    max-height: 120px;
+    max-width: 180px;
+    overflow: scroll;
+    right: 10px;
+    width: 180px !important;
+    z-index: 100000001;
+}
+
+#djDebugRequestsLabel {
+    color: #FFF !important;
+    font-size: 1.2em !important;
+}
+
+#djDebugRequests .djDebugRequestLink {
+    color: #FFF;
+    font-size: 1.1em;
+}
+
+#djDebugRequests .djDebugRequestLink.current {
+    cursor: default;
+    color: #999;
+    font-weight: bold;
+    text-decoration: none
+}

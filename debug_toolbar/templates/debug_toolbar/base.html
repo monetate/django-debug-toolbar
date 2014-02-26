@@ -9,5 +9,15 @@
 		<a title="{% trans "Show Toolbar" %}" id="djShowToolBarButton" href="#">&laquo;</a>
 	</div>
 	<div id="djDebugWindow" class="panelContent"></div>
+    <div id="djDebugRequests">
+        <div id="djDebugRequestsLabel"></div>
+        <ol id="djDebugRequestsList">
+            <li class="djDebugRequest">
+                <a class="djDebugRequestLink current" href="#" data-request="0">
+                    initial page load
+                </a>
+            </li>
+        </ol>
+    </div>
     {% include "debug_toolbar/request.html" %}
 </div>
