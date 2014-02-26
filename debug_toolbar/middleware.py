@@ -118,6 +118,11 @@ class DebugToolbarMiddleware(object):
         return result
 
     def process_response(self, request, response):
+        # If we're returning a No Content 204 response,
+        # set content to an empty json response so things
+        # don't blow up
+        if response.content == '':
+            response.content = '{}'
         __traceback_hide__ = True
         ident = threading.currentThread().ident
         toolbar = self.__class__.debug_toolbars.get(ident)
