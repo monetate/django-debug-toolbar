@@ -1,6 +1,7 @@
 import uuid
 from collections import defaultdict
 
+from asgiref.sync import sync_to_async
 from django.db import connections
 from django.template.loader import render_to_string
 from django.urls import path
@@ -13,7 +14,11 @@ from debug_toolbar.panels import Panel
 from debug_toolbar.panels.sql import views
 from debug_toolbar.panels.sql.forms import SQLSelectForm
 from debug_toolbar.panels.sql.tracking import wrap_cursor
-from debug_toolbar.panels.sql.utils import contrasting_color_generator, reformat_sql
+from debug_toolbar.panels.sql.utils import (
+    contrasting_color_generator,
+    is_select_query,
+    reformat_sql,
+)
 from debug_toolbar.utils import render_stacktrace
 
 
@@ -85,7 +90,7 @@ def _duplicate_query_key(query):
     raw_params = () if query["params"] is None else tuple(query["params"])
     # repr() avoids problems because of unhashable types
     # (e.g. lists) when used as dictionary keys.
-    # https://github.com/jazzband/django-debug-toolbar/issues/1091
+    # https://github.com/django-commons/django-debug-toolbar/issues/1091
     return (query["raw_sql"], repr(raw_params))
 
 
@@ -109,6 +114,8 @@ class SQLPanel(Panel):
     Panel that displays information about the SQL queries run while processing
     the request.
     """
+
+    is_async = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -189,6 +196,13 @@ class SQLPanel(Panel):
             path("sql_profile/", views.sql_profile, name="sql_profile"),
         ]
 
+    async def aenable_instrumentation(self):
+        """
+        Async version of enable instrumentation.
+        For async capable panels having async logic for instrumentation.
+        """
+        await sync_to_async(self.enable_instrumentation)()
+
     def enable_instrumentation(self):
         # This is thread-safe because database connections are thread-local.
         for connection in connections.all():
@@ -257,9 +271,7 @@ class SQLPanel(Panel):
                         query["vendor"], query["trans_status"]
                     )
                 query["is_slow"] = query["duration"] > sql_warning_threshold
-                query["is_select"] = (
-                    query["raw_sql"].lower().lstrip().startswith("select")
-                )
+                query["is_select"] = is_select_query(query["raw_sql"])
 
                 query["rgb_color"] = self._databases[alias]["rgb_color"]
                 try:

@@ -15,6 +15,11 @@ html5lib
 selenium
 tox
 black
+django-csp # Used in tests/test_csp_rendering
+
+# Integration support
+
+daphne # async in Example app
 
 # Documentation
 
@@ -25,4 +30,3 @@ sphinx-rtd-theme>1
 # Other tools
 
 pre-commit
-transifex-client

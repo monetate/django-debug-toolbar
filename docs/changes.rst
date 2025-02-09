@@ -28,6 +28,47 @@ Serializable (don't include in main)
 Pending
 -------
 
+* Added Django 5.2 to the tox matrix.
+
+5.0.1 (2025-01-13)
+------------------
+* Fixing the build and release process. No functional changes.
+
+5.0.0 (2025-01-11)
+------------------
+
+* Added Python 3.13 to the CI matrix.
+* Removed support for Python 3.8 as it has reached end of life.
+* Converted to Django Commons PyPI release process.
+* Fixed a crash which occurred when using non-``str`` static file values.
+* Documented experimental async support.
+* Improved troubleshooting doc for incorrect mime types for .js static files
+
+Please see everything under 5.0.0-alpha as well.
+
+5.0.0-alpha (2024-09-01)
+------------------------
+
+* Support async applications and ASGI from
+  `Google Summer of Code Project 2024
+  <https://summerofcode.withgoogle.com/programs/2024/projects/iXVvyGYp>`__.
+* Added Django 5.1 to the CI matrix.
+* Added support for the ``LoginRequiredMiddleware`` introduced in Django 5.1.
+* Support select and explain buttons for ``UNION`` queries on PostgreSQL.
+* Fixed internal toolbar requests being instrumented if the Django setting
+  ``FORCE_SCRIPT_NAME`` was set.
+* Increase opacity of show Debug Toolbar handle to improve accessibility.
+* Changed the ``RedirectsPanel`` to be async compatible.
+* Increased the contrast of text with dark mode enabled.
+* Add translations for Bulgarian and Korean.
+* Update translations for several languages.
+* Include new translatable strings for translation.
+* Fixed a crash which happened in the fallback case when session keys cannot be
+  sorted.
+
+4.4.6 (2024-07-10)
+------------------
+
 * Changed ordering (and grammatical number) of panels and their titles in
   documentation to match actual panel ordering and titles.
 * Skipped processing the alerts panel when response isn't a HTML response.

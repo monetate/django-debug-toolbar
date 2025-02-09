@@ -1,3 +1,6 @@
+import asyncio
+
+from asgiref.sync import sync_to_async
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.http import HttpResponseRedirect, JsonResponse
@@ -15,6 +18,52 @@ def execute_sql(request):
 
 def execute_json_sql(request):
     list(PostgresJSON.objects.filter(field__contains={"foo": "bar"}))
+    return render(request, "base.html")
+
+
+async def async_execute_json_sql(request):
+    list_store = []
+    # make async query with filter, which is compatible with async for.
+    async for obj in PostgresJSON.objects.filter(field__contains={"foo": "bar"}):
+        list_store.append(obj)
+    return render(request, "base.html")
+
+
+def execute_union_sql(request):
+    list(User.objects.all().union(User.objects.all(), all=True))
+    return render(request, "base.html")
+
+
+async def async_execute_union_sql(request):
+    list_store = []
+    # make async query with filter, which is compatible with async for.
+    users = User.objects.all().union(User.objects.all(), all=True)
+    async for user in users:
+        list_store.append(user)
+    return render(request, "base.html")
+
+
+async def async_execute_sql(request):
+    """
+    Some query API can be executed asynchronously but some requires
+    async version of itself.
+
+    https://docs.djangoproject.com/en/5.1/topics/db/queries/#asynchronous-queries
+    """
+    list_store = []
+
+    # make async query with filter, which is compatible with async for.
+    async for user in User.objects.filter(username="test"):
+        list_store.append(user)
+
+    # make async query with afirst
+    async_fetched_user = await User.objects.filter(username="test").afirst()
+    list_store.append(async_fetched_user)
+    return render(request, "base.html")
+
+
+async def async_execute_sql_concurrently(request):
+    await asyncio.gather(sync_to_async(list)(User.objects.all()), User.objects.acount())
     return render(request, "base.html")
 
 

@@ -1,4 +1,4 @@
-from functools import lru_cache
+from functools import cache, lru_cache
 from html import escape
 
 import sqlparse
@@ -86,6 +86,11 @@ class EscapedStringSerializer:
         return "".join(escaped_value(token) for token in stmt.flatten())
 
 
+def is_select_query(sql):
+    # UNION queries can start with "(".
+    return sql.lower().lstrip(" (").startswith("select")
+
+
 def reformat_sql(sql, *, with_toggle=False):
     formatted = parse_sql(sql)
     if not with_toggle:
@@ -102,7 +107,7 @@ def parse_sql(sql, *, simplify=False):
     return "".join(stack.run(sql))
 
 
-@lru_cache(maxsize=None)
+@cache
 def get_filter_stack(*, simplify):
     stack = sqlparse.engine.FilterStack()
     if simplify:

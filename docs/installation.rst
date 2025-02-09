@@ -9,7 +9,8 @@ fully functional.
 
 .. warning::
 
-    The Debug Toolbar does not currently support `Django's asynchronous views <https://docs.djangoproject.com/en/dev/topics/async/>`_.
+    The Debug Toolbar now supports `Django's asynchronous views <https://docs.djangoproject.com/en/dev/topics/async/>`_ and ASGI environment, but
+    still lacks the capability for handling concurrent requests.
 
 1. Install the Package
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -30,7 +31,7 @@ instead with the following command:
 
 .. code-block:: console
 
-    $ python -m pip install -e git+https://github.com/jazzband/django-debug-toolbar.git#egg=django-debug-toolbar
+    $ python -m pip install -e git+https://github.com/django-commons/django-debug-toolbar.git#egg=django-debug-toolbar
 
 If you're upgrading from a previous version, you should review the
 :doc:`change log <changes>` and look for specific upgrade instructions.
@@ -83,7 +84,7 @@ Add ``"debug_toolbar"`` to your ``INSTALLED_APPS`` setting:
     ]
 .. note:: Check  out the configuration example in the
    `example app
-   <https://github.com/jazzband/django-debug-toolbar/tree/main/example>`_
+   <https://github.com/django-commons/django-debug-toolbar/tree/main/example>`_
    to learn how to set up the toolbar to function smoothly while running
    your tests.
 
@@ -194,15 +195,41 @@ option.
 Troubleshooting
 ---------------
 
-On some platforms, the Django ``runserver`` command may use incorrect content
-types for static assets. To guess content types, Django relies on the
-:mod:`mimetypes` module from the Python standard library, which itself relies
-on the underlying platform's map files. If you find improper content types for
-certain files, it is most likely that the platform's map files are incorrect or
-need to be updated. This can be achieved, for example, by installing or
-updating the ``mailcap`` package on a Red Hat distribution, ``mime-support`` on
-a Debian distribution, or by editing the keys under ``HKEY_CLASSES_ROOT`` in
-the Windows registry.
+If the toolbar doesn't appear, check your browser's development console for
+errors. These errors can often point to one of the issues discussed in the
+section below. Note that the toolbar only shows up for pages with an HTML body
+tag, which is absent in the templates of the Django Polls tutorial.
+
+Incorrect MIME type for toolbar.js
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When this error occurs, the development console shows an error similar to:
+
+.. code-block:: text
+
+    Loading module from “http://127.0.0.1:8000/static/debug_toolbar/js/toolbar.js” was blocked because of a disallowed MIME type (“text/plain”).
+
+On some platforms (commonly on Windows O.S.), the Django ``runserver``
+command may use incorrect content types for static assets. To guess content
+types, Django relies on the :mod:`mimetypes` module from the Python standard
+library, which itself relies on the underlying platform's map files.
+
+The easiest workaround is to add the following to your ``settings.py`` file.
+This forces the MIME type for ``.js`` files:
+
+.. code-block:: python
+
+    import mimetypes
+    mimetypes.add_type("application/javascript", ".js", True)
+
+Alternatively, you can try to fix your O.S. configuration. If you find improper
+content types for certain files, it is most likely that the platform's map
+files are incorrect or need to be updated. This can be achieved, for example:
+
+- On Red Hat distributions, install or update the ``mailcap`` package.
+- On Debian distributions, install or update the ``mime-support`` package.
+- On Windows O.S., edit the keys under ``HKEY_CLASSES_ROOT`` in the Windows
+  registry.
 
 Cross-Origin Request Blocked
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -244,11 +271,12 @@ And for Apache:
 Django Channels & Async
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The Debug Toolbar currently doesn't support Django Channels or async projects.
-If you are using Django channels are having issues getting panels to load,
-please review the documentation for the configuration option
-:ref:`RENDER_PANELS <RENDER_PANELS>`.
+The Debug Toolbar currently has experimental support for Django Channels and
+async projects. The Debug Toolbar is compatible with the following exceptions:
 
+- Concurrent requests aren't supported
+- ``TimerPanel``, ``RequestPanel`` and ``ProfilingPanel`` can't be used
+  in async contexts.
 
 HTMX
 ^^^^

@@ -1,9 +1,11 @@
 import contextlib
+import uuid
 from contextvars import ContextVar
 from os.path import join, normpath
 
 from django.conf import settings
 from django.contrib.staticfiles import finders, storage
+from django.dispatch import Signal
 from django.utils.functional import LazyObject
 from django.utils.translation import gettext_lazy as _, ngettext
 
@@ -15,8 +17,9 @@ class StaticFile:
     Representing the different properties of a static file.
     """
 
-    def __init__(self, path):
+    def __init__(self, *, path, url):
         self.path = path
+        self._url = url
 
     def __str__(self):
         return self.path
@@ -25,11 +28,13 @@ class StaticFile:
         return finders.find(self.path)
 
     def url(self):
-        return storage.staticfiles_storage.url(self.path)
+        return self._url
 
 
-# This will collect the StaticFile instances across threads.
-used_static_files = ContextVar("djdt_static_used_static_files")
+# This will record and map the StaticFile instances with its associated
+# request across threads and async concurrent requests state.
+request_id_context_var = ContextVar("djdt_request_id_store")
+record_static_file_signal = Signal()
 
 
 class DebugConfiguredStorage(LazyObject):
@@ -54,13 +59,19 @@ class DebugConfiguredStorage(LazyObject):
 
         class DebugStaticFilesStorage(configured_storage_cls):
             def url(self, path):
+                url = super().url(path)
                 with contextlib.suppress(LookupError):
                     # For LookupError:
                     # The ContextVar wasn't set yet. Since the toolbar wasn't properly
                     # configured to handle this request, we don't need to capture
                     # the static file.
-                    used_static_files.get().append(StaticFile(path))
-                return super().url(path)
+                    request_id = request_id_context_var.get()
+                    record_static_file_signal.send(
+                        sender=self,
+                        staticfile=StaticFile(path=str(path), url=url),
+                        request_id=request_id,
+                    )
+                return url
 
         self._wrapped = DebugStaticFilesStorage()
 
@@ -73,6 +84,7 @@ class StaticFilesPanel(panels.Panel):
     A panel to display the found staticfiles.
     """
 
+    is_async = True
     name = "Static files"
     template = "debug_toolbar/panels/staticfiles.html"
 
@@ -88,12 +100,28 @@ class StaticFilesPanel(panels.Panel):
         super().__init__(*args, **kwargs)
         self.num_found = 0
         self.used_paths = []
+        self.request_id = str(uuid.uuid4())
 
-    def enable_instrumentation(self):
+    @classmethod
+    def ready(cls):
         storage.staticfiles_storage = DebugConfiguredStorage()
 
+    def _store_static_files_signal_handler(self, sender, staticfile, **kwargs):
+        # Only record the static file if the request_id matches the one
+        # that was used to create the panel.
+        # as sender of the signal and this handler will have multiple
+        # concurrent connections and we want to avoid storing of same
+        # staticfile from other connections as well.
+        if request_id_context_var.get() == self.request_id:
+            self.used_paths.append(staticfile)
+
+    def enable_instrumentation(self):
+        self.ctx_token = request_id_context_var.set(self.request_id)
+        record_static_file_signal.connect(self._store_static_files_signal_handler)
+
     def disable_instrumentation(self):
-        storage.staticfiles_storage = _original_storage
+        record_static_file_signal.disconnect(self._store_static_files_signal_handler)
+        request_id_context_var.reset(self.ctx_token)
 
     nav_title = _("Static files")
 
@@ -103,17 +131,6 @@ class StaticFilesPanel(panels.Panel):
         return ngettext(
             "%(num_used)s file used", "%(num_used)s files used", num_used
         ) % {"num_used": num_used}
-
-    def process_request(self, request):
-        reset_token = used_static_files.set([])
-        response = super().process_request(request)
-        # Make a copy of the used paths so that when the
-        # ContextVar is reset, our panel still has the data.
-        self.used_paths = used_static_files.get().copy()
-        # Reset the ContextVar to be empty again, removing the reference
-        # to the list of used files.
-        used_static_files.reset(reset_token)
-        return response
 
     def generate_stats(self, request, response):
         self.record_stats(

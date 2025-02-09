@@ -118,10 +118,10 @@ class DebugToolbarTestCase(BaseTestCase):
 
     def _resolve_stats(self, path):
         # takes stats from Request panel
-        self.request.path = path
+        request = rf.get(path)
         panel = self.toolbar.get_panel_by_id(RequestPanel.panel_id)
-        response = panel.process_request(self.request)
-        panel.generate_stats(self.request, response)
+        response = panel.process_request(request)
+        panel.generate_stats(request, response)
         return panel.get_stats()
 
     def test_url_resolving_positional(self):
@@ -219,40 +219,71 @@ class DebugToolbarTestCase(BaseTestCase):
         )
 
     def test_is_toolbar_request(self):
-        self.request.path = "/__debug__/render_panel/"
-        self.assertTrue(self.toolbar.is_toolbar_request(self.request))
+        request = rf.get("/__debug__/render_panel/")
+        self.assertTrue(self.toolbar.is_toolbar_request(request))
 
-        self.request.path = "/invalid/__debug__/render_panel/"
-        self.assertFalse(self.toolbar.is_toolbar_request(self.request))
+        request = rf.get("/invalid/__debug__/render_panel/")
+        self.assertFalse(self.toolbar.is_toolbar_request(request))
 
-        self.request.path = "/render_panel/"
-        self.assertFalse(self.toolbar.is_toolbar_request(self.request))
+        request = rf.get("/render_panel/")
+        self.assertFalse(self.toolbar.is_toolbar_request(request))
 
     @override_settings(ROOT_URLCONF="tests.urls_invalid")
     def test_is_toolbar_request_without_djdt_urls(self):
         """Test cases when the toolbar urls aren't configured."""
-        self.request.path = "/__debug__/render_panel/"
-        self.assertFalse(self.toolbar.is_toolbar_request(self.request))
+        request = rf.get("/__debug__/render_panel/")
+        self.assertFalse(self.toolbar.is_toolbar_request(request))
 
-        self.request.path = "/render_panel/"
-        self.assertFalse(self.toolbar.is_toolbar_request(self.request))
+        request = rf.get("/render_panel/")
+        self.assertFalse(self.toolbar.is_toolbar_request(request))
 
     @override_settings(ROOT_URLCONF="tests.urls_invalid")
     def test_is_toolbar_request_override_request_urlconf(self):
         """Test cases when the toolbar URL is configured on the request."""
-        self.request.path = "/__debug__/render_panel/"
-        self.assertFalse(self.toolbar.is_toolbar_request(self.request))
+        request = rf.get("/__debug__/render_panel/")
+        self.assertFalse(self.toolbar.is_toolbar_request(request))
 
         # Verify overriding the urlconf on the request is valid.
-        self.request.urlconf = "tests.urls"
-        self.request.path = "/__debug__/render_panel/"
-        self.assertTrue(self.toolbar.is_toolbar_request(self.request))
+        request.urlconf = "tests.urls"
+        self.assertTrue(self.toolbar.is_toolbar_request(request))
+
+    def test_is_toolbar_request_with_script_prefix(self):
+        """
+        Test cases when Django is running under a path prefix, such as via the
+        FORCE_SCRIPT_NAME setting.
+        """
+        request = rf.get("/__debug__/render_panel/", SCRIPT_NAME="/path/")
+        self.assertTrue(self.toolbar.is_toolbar_request(request))
+
+        request = rf.get("/invalid/__debug__/render_panel/", SCRIPT_NAME="/path/")
+        self.assertFalse(self.toolbar.is_toolbar_request(request))
+
+        request = rf.get("/render_panel/", SCRIPT_NAME="/path/")
+        self.assertFalse(self.toolbar.is_toolbar_request(self.request))
 
     def test_data_gone(self):
         response = self.client.get(
             "/__debug__/render_panel/?request_id=GONE&panel_id=RequestPanel"
         )
         self.assertIn("Please reload the page and retry.", response.json()["content"])
+
+    def test_sql_page(self):
+        response = self.client.get("/execute_sql/")
+        self.assertEqual(
+            len(response.toolbar.get_panel_by_id("SQLPanel").get_stats()["queries"]), 1
+        )
+
+    def test_async_sql_page(self):
+        response = self.client.get("/async_execute_sql/")
+        self.assertEqual(
+            len(response.toolbar.get_panel_by_id("SQLPanel").get_stats()["queries"]), 2
+        )
+
+    def test_concurrent_async_sql_page(self):
+        response = self.client.get("/async_execute_sql_concurrently/")
+        self.assertEqual(
+            len(response.toolbar.get_panel_by_id("SQLPanel").get_stats()["queries"]), 2
+        )
 
 
 @override_settings(DEBUG=True)
@@ -281,19 +312,19 @@ class DebugToolbarIntegrationTestCase(IntegrationTestCase):
             default_msg = ["Content is invalid HTML:"]
             lines = content.split(b"\n")
             for position, errorcode, datavars in parser.errors:
-                default_msg.append("  %s" % html5lib.constants.E[errorcode] % datavars)
-                default_msg.append("    %r" % lines[position[0] - 1])
+                default_msg.append(f"  {html5lib.constants.E[errorcode]}" % datavars)
+                default_msg.append(f"    {lines[position[0] - 1]!r}")
             msg = self._formatMessage(None, "\n".join(default_msg))
             raise self.failureException(msg)
 
     def test_render_panel_checks_show_toolbar(self):
-        url = "/__debug__/render_panel/"
         request_id = toolbar_request_id()
         get_store().save_panel(
             request_id, VersionsPanel.panel_id, {"value": "Test data"}
         )
         data = {"request_id": request_id, "panel_id": VersionsPanel.panel_id}
 
+        url = "/__debug__/render_panel/"
         response = self.client.get(url, data)
         self.assertEqual(response.status_code, 200)
         response = self.client.get(
@@ -431,6 +462,33 @@ class DebugToolbarIntegrationTestCase(IntegrationTestCase):
                 url, data, headers={"x-requested-with": "XMLHttpRequest"}
             )
             self.assertEqual(response.status_code, 404)
+
+    @unittest.skipUnless(
+        connection.vendor == "postgresql", "Test valid only on PostgreSQL"
+    )
+    def test_sql_explain_postgres_union_query(self):
+        """
+        Confirm select queries that start with a parenthesis can be explained.
+        """
+        self.client.get("/execute_union_sql/")
+        request_ids = list(get_store().request_ids())
+        request_id = request_ids[-1]
+        toolbar = DebugToolbar.fetch(request_id, SQLPanel.panel_id)
+        panel = toolbar.get_panel_by_id(SQLPanel.panel_id)
+        djdt_query_id = panel.get_stats()["queries"][-1]["djdt_query_id"]
+
+        url = "/__debug__/sql_explain/"
+        data = {
+            "signed": SignedDataForm.sign(
+                {
+                    "request_id": request_id,
+                    "djdt_query_id": djdt_query_id,
+                }
+            )
+        }
+
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
 
     @unittest.skipUnless(
         connection.vendor == "postgresql", "Test valid only on PostgreSQL"
@@ -871,3 +929,29 @@ class DebugToolbarLiveTestCase(StaticLiveServerTestCase):
         self.get("/regular/basic/")
         toolbar = self.selenium.find_element(By.ID, "djDebug")
         self.assertEqual(toolbar.get_attribute("data-theme"), "light")
+
+    def test_async_sql_action(self):
+        self.get("/async_execute_sql/")
+        self.selenium.find_element(By.ID, "SQLPanel")
+        self.selenium.find_element(By.ID, "djDebugWindow")
+
+        # Click to show the SQL panel
+        self.selenium.find_element(By.CLASS_NAME, "SQLPanel").click()
+
+        # SQL panel loads
+        self.wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, ".remoteCall"))
+        )
+
+    def test_concurrent_async_sql_action(self):
+        self.get("/async_execute_sql_concurrently/")
+        self.selenium.find_element(By.ID, "SQLPanel")
+        self.selenium.find_element(By.ID, "djDebugWindow")
+
+        # Click to show the SQL panel
+        self.selenium.find_element(By.CLASS_NAME, "SQLPanel").click()
+
+        # SQL panel loads
+        self.wait.until(
+            EC.visibility_of_element_located((By.CSS_SELECTOR, ".remoteCall"))
+        )

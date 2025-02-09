@@ -12,6 +12,8 @@ class VersionsPanel(Panel):
     Shows versions of Python, Django, and installed apps if possible.
     """
 
+    is_async = True
+
     @property
     def nav_subtitle(self):
         return "Django %s" % self.get_stats()["django_version"]

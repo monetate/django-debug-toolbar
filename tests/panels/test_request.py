@@ -1,8 +1,11 @@
 from django.http import QueryDict
+from django.test import RequestFactory
 
 from debug_toolbar.panels.request import RequestPanel
 
 from ..base import BaseTestCase
+
+rf = RequestFactory()
 
 
 class RequestPanelTestCase(BaseTestCase):
@@ -15,9 +18,9 @@ class RequestPanelTestCase(BaseTestCase):
         self.assertIn("où", self.panel.content)
 
     def test_object_with_non_ascii_repr_in_request_params(self):
-        self.request.path = "/non_ascii_request/"
-        response = self.panel.process_request(self.request)
-        self.panel.generate_stats(self.request, response)
+        request = rf.get("/non_ascii_request/")
+        response = self.panel.process_request(request)
+        self.panel.generate_stats(request, response)
         self.assertIn("nôt åscíì", self.panel.content)
 
     def test_insert_content(self):
@@ -25,11 +28,11 @@ class RequestPanelTestCase(BaseTestCase):
         Test that the panel only inserts content after generate_stats and
         not the process_request.
         """
-        self.request.path = "/non_ascii_request/"
-        response = self.panel.process_request(self.request)
+        request = rf.get("/non_ascii_request/")
+        response = self.panel.process_request(request)
         # ensure the panel does not have content yet.
         self.assertNotIn("nôt åscíì", self.panel.content)
-        self.panel.generate_stats(self.request, response)
+        self.panel.generate_stats(request, response)
         # ensure the panel renders correctly.
         content = self.panel.content
         self.assertIn("nôt åscíì", content)
@@ -51,7 +54,7 @@ class RequestPanelTestCase(BaseTestCase):
     def test_dict_for_request_in_method_get(self):
         """
         Test verifies the correctness of the statistics generation method
-        in the case when the GET request is class Dict
+        in the case when the GET request is class dict
         """
         self.request.GET = {"foo": "bar"}
         response = self.panel.process_request(self.request)
@@ -77,7 +80,7 @@ class RequestPanelTestCase(BaseTestCase):
     def test_dict_for_request_in_method_post(self):
         """
         Test verifies the correctness of the statistics generation method
-        in the case when the POST request is class Dict
+        in the case when the POST request is class dict
         """
         self.request.POST = {"foo": "bar"}
         response = self.panel.process_request(self.request)
@@ -91,7 +94,7 @@ class RequestPanelTestCase(BaseTestCase):
         """
         Verify that the toolbar doesn't crash if request.POST contains unexpected data.
 
-        See https://github.com/jazzband/django-debug-toolbar/issues/1621
+        See https://github.com/django-commons/django-debug-toolbar/issues/1621
         """
         self.request.POST = [{"a": 1}, {"b": 2}]
         response = self.panel.process_request(self.request)
@@ -101,9 +104,9 @@ class RequestPanelTestCase(BaseTestCase):
         self.assertIn("[{&#x27;a&#x27;: 1}, {&#x27;b&#x27;: 2}]", content)
 
     def test_namespaced_url(self):
-        self.request.path = "/admin/login/"
-        response = self.panel.process_request(self.request)
-        self.panel.generate_stats(self.request, response)
+        request = rf.get("/admin/login/")
+        response = self.panel.process_request(request)
+        self.panel.generate_stats(request, response)
         panel_stats = self.panel.get_stats()
         self.assertEqual(panel_stats["view_urlname"], "admin:login")
 
@@ -111,7 +114,7 @@ class RequestPanelTestCase(BaseTestCase):
         """
         Verify the session is sorted when all keys are strings.
 
-        See  https://github.com/jazzband/django-debug-toolbar/issues/1668
+        See  https://github.com/django-commons/django-debug-toolbar/issues/1668
         """
         self.request.session = {
             1: "value",

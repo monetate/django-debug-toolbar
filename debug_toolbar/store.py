@@ -2,7 +2,8 @@ import contextlib
 import json
 import logging
 from collections import defaultdict, deque
-from typing import Any, Dict, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.encoding import force_str
@@ -75,7 +76,7 @@ class MemoryStore(BaseStore):
     # Use a dequeue to support O(1) appends and pops
     # from either direction.
     _request_ids: deque = deque()
-    _request_store: Dict[str, Dict] = defaultdict(dict)
+    _request_store: dict[str, dict] = defaultdict(dict)
 
     @classmethod
     def request_ids(cls) -> Iterable:

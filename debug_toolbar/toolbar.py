@@ -5,7 +5,7 @@ The main DebugToolbar class that loads and renders the Toolbar.
 import logging
 import re
 import uuid
-from functools import lru_cache
+from functools import cache
 
 from django.apps import apps
 from django.conf import settings
@@ -157,14 +157,14 @@ class DebugToolbar:
         # not have resolver_match set.
         try:
             resolver_match = request.resolver_match or resolve(
-                request.path, getattr(request, "urlconf", None)
+                request.path_info, getattr(request, "urlconf", None)
             )
         except Resolver404:
             return False
         return resolver_match.namespaces and resolver_match.namespaces[-1] == APP_NAME
 
     @staticmethod
-    @lru_cache(maxsize=None)
+    @cache
     def get_observe_request():
         # If OBSERVE_REQUEST_CALLBACK is a string, which is the recommended
         # setup, resolve it to the corresponding callable.
@@ -235,7 +235,7 @@ def debug_toolbar_urls(prefix="__debug__"):
         return []
     return [
         re_path(
-            r"^%s/" % re.escape(prefix.lstrip("/")),
+            r"^{}/".format(re.escape(prefix.lstrip("/"))),
             include("debug_toolbar.urls"),
         ),
     ]

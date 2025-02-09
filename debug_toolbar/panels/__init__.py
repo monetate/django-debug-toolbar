@@ -1,3 +1,4 @@
+from django.core.handlers.asgi import ASGIRequest
 from django.template.loader import render_to_string
 from django.utils.functional import classproperty
 
@@ -9,6 +10,8 @@ class Panel:
     """
     Base class for panels.
     """
+
+    is_async = False
 
     def __init__(self, toolbar, get_response):
         self.toolbar = toolbar
@@ -23,12 +26,17 @@ class Panel:
 
     @property
     def enabled(self) -> bool:
+        # Check if the panel is async compatible
+        if not self.is_async and isinstance(self.toolbar.request, ASGIRequest):
+            return False
+
         if self.from_store:
             # If the toolbar was loaded from the store the existence of
             # recorded data indicates whether it was enabled or not.
             # We can't use the remainder of the logic since we don't have
             # a request to work off of.
             return bool(self.get_stats())
+
         # The user's cookies should override the default value
         cookie_value = self.toolbar.request.COOKIES.get("djdt" + self.panel_id)
         if cookie_value is not None:
@@ -155,6 +163,9 @@ class Panel:
 
         Unless the toolbar or this panel is disabled, this method will be
         called early in ``DebugToolbarMiddleware``. It should be idempotent.
+
+        Add the ``aenable_instrumentation``  method to a panel subclass
+        to support async logic for instrumentation.
         """
 
     def disable_instrumentation(self):

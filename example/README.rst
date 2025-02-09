@@ -13,9 +13,10 @@ interfere with common JavaScript frameworks.
 How to
 ------
 
-The example project requires a working installation of Django::
+The example project requires a working installation of Django and a few other
+packages::
 
-    $ python -m pip install Django
+    $ python -m pip install -r requirements_dev.txt
 
 The following command must run from the root directory of Django Debug Toolbar,
 i.e. the directory that contains ``example/``::
@@ -46,3 +47,13 @@ environment variable::
 
     $ DB_BACKEND=postgresql python example/manage.py migrate
     $ DB_BACKEND=postgresql python example/manage.py runserver
+
+Using an asynchronous (ASGI) server:
+
+Install [Daphne](https://pypi.org/project/daphne/) first:
+
+    $ python -m pip install daphne
+
+Then run the Django development server:
+
+    $ ASYNC_SERVER=true python example/manage.py runserver

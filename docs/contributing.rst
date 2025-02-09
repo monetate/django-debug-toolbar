@@ -1,19 +1,14 @@
 Contributing
 ============
 
-.. image:: https://jazzband.co/static/img/jazzband.svg
-   :target: https://jazzband.co/
-   :alt: Jazzband
-
-This is a `Jazzband <https://jazzband.co>`_ project. By contributing you agree
-to abide by the `Contributor Code of Conduct <https://jazzband.co/about/conduct>`_
-and follow the `guidelines <https://jazzband.co/about/guidelines>`_.
+This is a `Django Commons <https://github.com/django-commons>`_ project. By contributing you agree
+to abide by the `Contributor Code of Conduct <https://github.com/django-commons/membership/blob/main/CODE_OF_CONDUCT.md>`_.
 
 Bug reports and feature requests
 --------------------------------
 
 You can report bugs and request features in the `bug tracker
-<https://github.com/jazzband/django-debug-toolbar/issues>`_.
+<https://github.com/django-commons/django-debug-toolbar/issues>`_.
 
 Please search the existing database for duplicates before filing an issue.
 
@@ -21,13 +16,13 @@ Code
 ----
 
 The code is available `on GitHub
-<https://github.com/jazzband/django-debug-toolbar>`_. Unfortunately, the
+<https://github.com/django-commons/django-debug-toolbar>`_. Unfortunately, the
 repository contains old and flawed objects, so if you have set
 `fetch.fsckObjects
 <https://github.com/git/git/blob/0afbf6caa5b16dcfa3074982e5b48e27d452dbbb/Documentation/config.txt#L1381>`_
 you'll have to deactivate it for this repository::
 
-    git clone --config fetch.fsckobjects=false https://github.com/jazzband/django-debug-toolbar.git
+    git clone --config fetch.fsckobjects=false https://github.com/django-commons/django-debug-toolbar.git
 
 Once you've obtained a checkout, you should create a virtualenv_ and install
 the libraries required for working on the Debug Toolbar::
@@ -112,10 +107,10 @@ For MySQL/MariaDB in a ``mysql`` shell::
 Style
 -----
 
-The Django Debug Toolbar uses `black <https://github.com/psf/black>`__ to
-format code and additionally uses ruff. The toolbar uses
-`pre-commit <https://pre-commit.com>`__ to automatically apply our style
-guidelines when a commit is made. Set up pre-commit before committing with::
+The Django Debug Toolbar uses `ruff <https://github.com/astral-sh/ruff/>`__ to
+format and lint Python code. The toolbar uses `pre-commit
+<https://pre-commit.com>`__ to automatically apply our style guidelines when a
+commit is made. Set up pre-commit before committing with::
 
     $ pre-commit install
 
@@ -129,11 +124,23 @@ To reformat the code manually use::
 
     $ pre-commit run --all-files
 
+
+Typing
+------
+
+The Debug Toolbar has been accepting patches which add type hints to the code
+base, as long as the types themselves do not cause any problems or obfuscate
+the intent.
+
+The maintainers are not committed to adding type hints and are not requiring
+new code to have type hints at this time. This may change in the future.
+
+
 Patches
 -------
 
 Please submit `pull requests
-<https://github.com/jazzband/django-debug-toolbar/pulls>`_!
+<https://github.com/django-commons/django-debug-toolbar/pulls>`_!
 
 The Debug Toolbar includes a limited but growing test suite. If you fix a bug
 or add a feature code, please consider adding proper coverage in the test
@@ -160,8 +167,11 @@ Prior to a release, the English ``.po`` file must be updated with ``make
 translatable_strings`` and pushed to Transifex. Once translators have done
 their job, ``.po`` files must be downloaded with ``make update_translations``.
 
+You will need to
+`install the Transifex CLI <https://developers.transifex.com/docs/cli>`_.
+
 To publish a release you have to be a `django-debug-toolbar project lead at
-Jazzband <https://jazzband.co/projects/django-debug-toolbar>`__.
+Django Commons <https://github.com/django-commons/django-debug-toolbar>`__.
 
 The release itself requires the following steps:
 
@@ -189,7 +199,7 @@ The release itself requires the following steps:
 
 #. Push the commit and the tag.
 
-#. Publish the release from the Jazzband website.
+#. Publish the release from the Django Commons website.
 
 #. Change the default version of the docs to point to the latest release:
    https://readthedocs.org/dashboard/django-debug-toolbar/versions/
