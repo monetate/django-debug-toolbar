@@ -18,6 +18,8 @@ Pending
 * Avoided a "forked" Promise chain in the rebound ``window.fetch`` function
   with missing exception handling.
 * Fixed the pygments code highlighting when using dark mode.
+* Fix for exception-unhandled "forked" Promise chain in rebound window.fetch
+* Create a CSP nonce property on the toolbar ``Toolbar().csp_nonce``.
 
 5.0.1 (2025-01-13)
 ------------------
