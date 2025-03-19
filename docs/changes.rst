@@ -17,6 +17,7 @@ Pending
 * Avoided reinitializing the staticfiles storage during instrumentation.
 * Avoided a "forked" Promise chain in the rebound ``window.fetch`` function
   with missing exception handling.
+* Fixed the pygments code highlighting when using dark mode.
 
 5.0.1 (2025-01-13)
 ------------------
