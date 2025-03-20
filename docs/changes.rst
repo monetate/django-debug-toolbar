@@ -4,6 +4,8 @@ Change log
 Pending
 -------
 
+* Added hook to RedirectsPanel for subclass customization.
+
 5.1.0 (2025-03-20)
 ------------------
 * Added Django 5.2 to the tox matrix.
