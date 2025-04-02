@@ -6,7 +6,10 @@ Pending
 
 * Added hook to RedirectsPanel for subclass customization.
 * Added feature to sanitize sensitive data in the Request Panel.
-* Fixed dark mode conflict in code block toolbar CSS
+* Fixed dark mode conflict in code block toolbar CSS.
+* Properly allowed overriding the system theme preference by using the theme
+  selector. Removed the ``DEFAULT_THEME`` setting, we should always default to
+  system-level defaults where possible.
 * Added support for using django-template-partials with the template panel's
   source view functionality. The same change possibly adds support for other
   template loaders.
