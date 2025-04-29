@@ -199,7 +199,8 @@ The release itself requires the following steps:
 
 #. Push the commit and the tag.
 
-#. Publish the release from the Django Commons website.
+#. Publish the release from the GitHub actions workflow.
 
-#. Change the default version of the docs to point to the latest release:
-   https://readthedocs.org/dashboard/django-debug-toolbar/versions/
+#. **After the publishing completed** edit the automatically created GitHub
+   release to include the release notes (you may use GitHub's "Generate release
+   notes" button for this).
