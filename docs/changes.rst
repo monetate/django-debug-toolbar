@@ -4,6 +4,9 @@ Change log
 Pending
 -------
 
+5.2.0 (2025-04-29)
+------------------
+
 * Added hook to RedirectsPanel for subclass customization.
 * Added feature to sanitize sensitive data in the Request Panel.
 * Fixed dark mode conflict in code block toolbar CSS.
@@ -22,6 +25,7 @@ Pending
 
 5.1.0 (2025-03-20)
 ------------------
+
 * Added Django 5.2 to the tox matrix.
 * Updated package metadata to include well-known labels.
 * Added resources section to the documentation.
