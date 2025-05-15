@@ -1,9 +1,11 @@
 Change log
 ==========
 
-Serializable (don't include in main)
-------------------------------------
+Pending
+-------
 
+* Added support for checking if pytest as the test runner when determining
+  if tests are running.
 * Defines the ``BaseStore`` interface for request storage mechanisms.
 * Added the setting ``TOOLBAR_STORE_CLASS`` to configure the request
   storage mechanism. Defaults to ``debug_toolbar.store.MemoryStore``.
@@ -26,12 +28,6 @@ Serializable (don't include in main)
 * Extend example app to contain an async version.
 * Added ``debug_toolbar.store.DatabaseStore`` for persistent debug data
   storage.
-
-Pending
--------
-
-* Added support for checking if pytest as the test runner when determining
-  if tests are running.
 
 5.2.0 (2025-04-29)
 ------------------
