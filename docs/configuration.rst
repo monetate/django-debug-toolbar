@@ -77,7 +77,7 @@ Toolbar options
 
 * ``IS_RUNNING_TESTS``
 
-  Default: ``"test" in sys.argv``
+  Default: ``"test" in sys.argv or "PYTEST_VERSION" in os.environ``
 
   This setting whether the application is running tests. If this resolves to
   ``True``, the toolbar will prevent you from running tests. This should only
@@ -229,13 +229,6 @@ Toolbar options
   request when it occurs. This is especially useful when using htmx
   boosting or similar JavaScript techniques.
 
-.. _DEFAULT_THEME:
-
-* ``DEFAULT_THEME``
-
-  Default: ``"auto"``
-
-  This controls which theme will use the toolbar by default.
 
 Panel options
 ~~~~~~~~~~~~~

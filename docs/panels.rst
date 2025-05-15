@@ -122,6 +122,11 @@ Since this behavior is annoying when you aren't debugging a redirect, this
 panel is included but inactive by default. You can activate it by default with
 the ``DISABLE_PANELS`` configuration option.
 
+To further customize the behavior, you can subclass the ``RedirectsPanel``
+and override the ``get_interception_response`` method to manipulate the
+response directly. To use a custom ``RedirectsPanel``, you need to replace
+the original one in ``DEBUG_TOOLBAR_PANELS`` in your ``settings.py``.
+
 .. _profiling-panel:
 
 Profiling
@@ -321,7 +326,7 @@ Panels can ship their own templates, static files and views.
 Any views defined for the third-party panel use the following decorators:
 
 - ``debug_toolbar.decorators.require_show_toolbar`` - Prevents unauthorized
-  access to the view.
+  access to the view. This decorator is compatible with async views.
 - ``debug_toolbar.decorators.render_with_toolbar_language`` - Supports
   internationalization for any content rendered by the view. This will render
   the response with the :ref:`TOOLBAR_LANGUAGE <TOOLBAR_LANGUAGE>` rather than

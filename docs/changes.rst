@@ -30,7 +30,47 @@ Serializable (don't include in main)
 Pending
 -------
 
+* Added support for checking if pytest as the test runner when determining
+  if tests are running.
+
+5.2.0 (2025-04-29)
+------------------
+
+* Added hook to RedirectsPanel for subclass customization.
+* Added feature to sanitize sensitive data in the Request Panel.
+* Fixed dark mode conflict in code block toolbar CSS.
+* Properly allowed overriding the system theme preference by using the theme
+  selector. Removed the ``DEFAULT_THEME`` setting, we should always default to
+  system-level defaults where possible.
+* Added support for using django-template-partials with the template panel's
+  source view functionality. The same change possibly adds support for other
+  template loaders.
+* Introduced `djade <https://github.com/adamchainz/djade>`__ to format Django
+  templates.
+* Swapped display order of panel header and close button to prevent style
+  conflicts
+* Added CSS for resetting the height of elements too to avoid problems with
+  global CSS of a website where the toolbar is used.
+
+5.1.0 (2025-03-20)
+------------------
+
 * Added Django 5.2 to the tox matrix.
+* Updated package metadata to include well-known labels.
+* Added resources section to the documentation.
+* Wrap ``SHOW_TOOLBAR_CALLBACK`` function with ``sync_to_async``
+  or ``async_to_sync`` to allow sync/async compatibility.
+* Make ``require_toolbar`` decorator compatible to async views.
+* Added link to contributing documentation in ``CONTRIBUTING.md``.
+* Replaced ESLint and prettier with biome in our pre-commit configuration.
+* Added a Makefile target (``make help``) to get a quick overview
+  of each target.
+* Avoided reinitializing the staticfiles storage during instrumentation.
+* Avoided a "forked" Promise chain in the rebound ``window.fetch`` function
+  with missing exception handling.
+* Fixed the pygments code highlighting when using dark mode.
+* Fix for exception-unhandled "forked" Promise chain in rebound window.fetch
+* Create a CSP nonce property on the toolbar ``Toolbar().csp_nonce``.
 
 5.0.1 (2025-01-13)
 ------------------

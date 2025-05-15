@@ -13,8 +13,10 @@ async
 backend
 backends
 backported
+biome
 checkbox
 contrib
+csp
 dicts
 django
 fallbacks
@@ -50,6 +52,7 @@ pylibmc
 pyupgrade
 querysets
 refactoring
+reinitializing
 resizing
 runserver
 spellchecking
@@ -57,6 +60,7 @@ spooler
 stacktrace
 stacktraces
 startup
+staticfiles
 theming
 timeline
 tox
