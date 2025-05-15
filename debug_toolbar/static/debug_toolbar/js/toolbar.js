@@ -298,7 +298,7 @@ const djdt = {
 
         function handleAjaxResponse(requestId) {
             const encodedRequestId = encodeURIComponent(requestId);
-            const dest = `${sidebarUrl}?store_id=${encodedRequestId}`;
+            const dest = `${sidebarUrl}?request_id=${encodedRequestId}`;
             slowjax(dest).then((data) => {
                 if (djdt.needUpdateOnFetch) {
                     replaceToolbarState(encodedRequestId, data);
