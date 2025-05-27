@@ -1,5 +1,5 @@
 {
-    "$schema": "https://biomejs.dev/schemas/2.0.0-beta.2/schema.json",
+    "$schema": "https://biomejs.dev/schemas/2.0.0-beta.5/schema.json",
     "formatter": {
         "enabled": true,
         "useEditorconfig": true
@@ -20,7 +20,6 @@
                 "noCommaOperator": "error",
                 "useNodejsImportProtocol": "error",
                 "useAsConstAssertion": "error",
-                "useNumericLiterals": "error",
                 "useEnumInitializers": "error",
                 "useSelfClosingElements": "error",
                 "useConst": "error",
@@ -41,6 +40,9 @@
             },
             "suspicious": {
                 "noDocumentCookie": "off"
+            },
+            "complexity": {
+                "useNumericLiterals": "error"
             }
         }
     },
