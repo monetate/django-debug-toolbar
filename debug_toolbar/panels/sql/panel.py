@@ -314,16 +314,6 @@ class SQLPanel(Panel):
         value = stats.get("sql_time", 0)
         self.record_server_timing("sql_time", title, value)
 
-    def record_stats(self, stats):
-        """
-        Store data gathered by the panel. ``stats`` is a :class:`dict`.
-
-        Each call to ``record_stats`` updates the statistics dictionary.
-        """
-        for query in stats.get("queries", []):
-            query["params"]
-        return super().record_stats(stats)
-
     # Cache the content property since it manipulates the queries in the stats
     # This allows the caller to treat content as idempotent
     @cached_property
