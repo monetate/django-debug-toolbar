@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-from typing import cast
-from xml.etree.ElementTree import Element
-
 from django.conf import settings
-from django.http.response import HttpResponse
 from django.test.utils import override_settings
 from html5lib.constants import E
 from html5lib.html5parser import HTMLParser
@@ -22,7 +18,7 @@ MIDDLEWARE_CSP_BEFORE.insert(
 MIDDLEWARE_CSP_LAST = settings.MIDDLEWARE + ["csp.middleware.CSPMiddleware"]
 
 
-def get_namespaces(element: Element) -> dict[str, str]:
+def get_namespaces(element):
     """
     Return the default `xmlns`. See
     https://docs.python.org/3/library/xml.etree.elementtree.html#parsing-xml-with-namespaces
@@ -40,9 +36,7 @@ class CspRenderingTestCase(IntegrationTestCase):
         super().setUp()
         self.parser = HTMLParser()
 
-    def _fail_if_missing(
-        self, root: Element, path: str, namespaces: dict[str, str], nonce: str
-    ):
+    def _fail_if_missing(self, root, path, namespaces, nonce):
         """
         Search elements, fail if a `nonce` attribute is missing on them.
         """
@@ -51,7 +45,7 @@ class CspRenderingTestCase(IntegrationTestCase):
             if item.attrib.get("nonce") != nonce:
                 raise self.failureException(f"{item} has no nonce attribute.")
 
-    def _fail_if_found(self, root: Element, path: str, namespaces: dict[str, str]):
+    def _fail_if_found(self, root, path, namespaces):
         """
         Search elements, fail if a `nonce` attribute is found on them.
         """
@@ -60,7 +54,7 @@ class CspRenderingTestCase(IntegrationTestCase):
             if "nonce" in item.attrib:
                 raise self.failureException(f"{item} has a nonce attribute.")
 
-    def _fail_on_invalid_html(self, content: bytes, parser: HTMLParser):
+    def _fail_on_invalid_html(self, content, parser):
         """Fail if the passed HTML is invalid."""
         if parser.errors:
             default_msg = ["Content is invalid HTML:"]
@@ -75,10 +69,10 @@ class CspRenderingTestCase(IntegrationTestCase):
         """A `nonce` should exist when using the `CSPMiddleware`."""
         for middleware in [MIDDLEWARE_CSP_BEFORE, MIDDLEWARE_CSP_LAST]:
             with self.settings(MIDDLEWARE=middleware):
-                response = cast(HttpResponse, self.client.get(path="/csp_view/"))
+                response = self.client.get(path="/csp_view/")
                 self.assertEqual(response.status_code, 200)
 
-                html_root: Element = self.parser.parse(stream=response.content)
+                html_root = self.parser.parse(stream=response.content)
                 self._fail_on_invalid_html(content=response.content, parser=self.parser)
                 self.assertContains(response, "djDebug")
 
@@ -98,10 +92,10 @@ class CspRenderingTestCase(IntegrationTestCase):
         """
         for middleware in [MIDDLEWARE_CSP_BEFORE, MIDDLEWARE_CSP_LAST]:
             with self.settings(MIDDLEWARE=middleware):
-                response = cast(HttpResponse, self.client.get(path="/regular/basic/"))
+                response = self.client.get(path="/regular/basic/")
                 self.assertEqual(response.status_code, 200)
 
-                html_root: Element = self.parser.parse(stream=response.content)
+                html_root = self.parser.parse(stream=response.content)
                 self._fail_on_invalid_html(content=response.content, parser=self.parser)
                 self.assertContains(response, "djDebug")
 
@@ -119,15 +113,16 @@ class CspRenderingTestCase(IntegrationTestCase):
     def test_redirects_exists(self):
         for middleware in [MIDDLEWARE_CSP_BEFORE, MIDDLEWARE_CSP_LAST]:
             with self.settings(MIDDLEWARE=middleware):
-                response = cast(HttpResponse, self.client.get(path="/csp_view/"))
+                response = self.client.get(path="/csp_view/")
                 self.assertEqual(response.status_code, 200)
 
-                html_root: Element = self.parser.parse(stream=response.content)
+                html_root = self.parser.parse(stream=response.content)
                 self._fail_on_invalid_html(content=response.content, parser=self.parser)
                 self.assertContains(response, "djDebug")
 
                 namespaces = get_namespaces(element=html_root)
-                nonce = response.context["request"].csp_nonce
+                context = response.context
+                nonce = str(context["toolbar"].csp_nonce)
                 self._fail_if_missing(
                     root=html_root, path=".//link", namespaces=namespaces, nonce=nonce
                 )
@@ -139,7 +134,7 @@ class CspRenderingTestCase(IntegrationTestCase):
         store = get_store()
         for middleware in [MIDDLEWARE_CSP_BEFORE, MIDDLEWARE_CSP_LAST]:
             with self.settings(MIDDLEWARE=middleware):
-                response = cast(HttpResponse, self.client.get(path="/csp_view/"))
+                response = self.client.get(path="/csp_view/")
                 self.assertEqual(response.status_code, 200)
 
                 request_ids = list(store.request_ids())
@@ -147,7 +142,7 @@ class CspRenderingTestCase(IntegrationTestCase):
                 panels_to_check = ["HistoryPanel", "TimerPanel"]
                 for panel in panels_to_check:
                     content = toolbar.get_panel_by_id(panel).content
-                    html_root: Element = self.parser.parse(stream=content)
+                    html_root = self.parser.parse(stream=content)
                     namespaces = get_namespaces(element=html_root)
                     nonce = str(toolbar.csp_nonce)
                     self._fail_if_missing(
@@ -165,10 +160,10 @@ class CspRenderingTestCase(IntegrationTestCase):
 
     def test_missing(self):
         """A `nonce` should not exist when not using the `CSPMiddleware`."""
-        response = cast(HttpResponse, self.client.get(path="/regular/basic/"))
+        response = self.client.get(path="/regular/basic/")
         self.assertEqual(response.status_code, 200)
 
-        html_root: Element = self.parser.parse(stream=response.content)
+        html_root = self.parser.parse(stream=response.content)
         self._fail_on_invalid_html(content=response.content, parser=self.parser)
         self.assertContains(response, "djDebug")
 

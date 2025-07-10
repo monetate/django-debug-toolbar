@@ -15,7 +15,11 @@ from django.test import RequestFactory
 from django.test.utils import override_settings
 
 from debug_toolbar.forms import SignedDataForm
-from debug_toolbar.middleware import DebugToolbarMiddleware, show_toolbar
+from debug_toolbar.middleware import (
+    DebugToolbarMiddleware,
+    show_toolbar,
+    show_toolbar_with_docker,
+)
 from debug_toolbar.panels import Panel
 from debug_toolbar.panels.cache import CachePanel
 from debug_toolbar.panels.history import HistoryPanel
@@ -79,7 +83,8 @@ class DebugToolbarTestCase(BaseTestCase):
         with self.settings(INTERNAL_IPS=[]):
             # Is true because REMOTE_ADDR is 127.0.0.1 and the 255
             # is shifted to be 1.
-            self.assertTrue(show_toolbar(self.request))
+            self.assertFalse(show_toolbar(self.request))
+            self.assertTrue(show_toolbar_with_docker(self.request))
         mocked_gethostbyname.assert_called_once_with("host.docker.internal")
 
     def test_not_iterating_over_INTERNAL_IPS(self):

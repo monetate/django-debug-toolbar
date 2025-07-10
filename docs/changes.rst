@@ -6,6 +6,8 @@ Pending
 
 * Added support for checking if pytest as the test runner when determining
   if tests are running.
+* Added ``show_toolbar_with_docker`` function to check Docker host IP address
+  when running inside Docker containers.
 * Defines the ``BaseStore`` interface for request storage mechanisms.
 * Added the setting ``TOOLBAR_STORE_CLASS`` to configure the request
   storage mechanism. Defaults to ``debug_toolbar.store.MemoryStore``.
@@ -67,6 +69,7 @@ Pending
 * Fixed the pygments code highlighting when using dark mode.
 * Fix for exception-unhandled "forked" Promise chain in rebound window.fetch
 * Create a CSP nonce property on the toolbar ``Toolbar().csp_nonce``.
+
 
 5.0.1 (2025-01-13)
 ------------------
