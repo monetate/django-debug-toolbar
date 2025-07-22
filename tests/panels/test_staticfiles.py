@@ -71,8 +71,8 @@ class StaticFilesPanelTestCase(BaseTestCase):
                 {
                     "paths": [
                         Path("additional_static/base.css"),
-                        Path("additional_static/base.css"),
-                        Path("additional_static/base2.css"),
+                        "additional_static/base.css",
+                        "additional_static/base2.css",
                     ]
                 },
             )
@@ -82,8 +82,12 @@ class StaticFilesPanelTestCase(BaseTestCase):
         response = self.panel.process_request(request)
         self.panel.generate_stats(self.request, response)
         self.assertEqual(self.panel.get_stats()["num_used"], 2)
-        self.assertIn('"/static/additional_static/base.css"', self.panel.content, 1)
-        self.assertIn('"/static/additional_static/base2.css"', self.panel.content, 1)
+        self.assertIn(
+            'href="/static/additional_static/base.css"', self.panel.content, 1
+        )
+        self.assertIn(
+            'href="/static/additional_static/base2.css"', self.panel.content, 1
+        )
 
     def test_storage_state_preservation(self):
         """Ensure the URLMixin doesn't affect storage state"""
@@ -110,7 +114,7 @@ class StaticFilesPanelTestCase(BaseTestCase):
             url = storage.staticfiles_storage.url("test.css")
             self.assertTrue(url.startswith("/static/"))
             # Verify file was tracked
-            self.assertIn("test.css", [f.path for f in self.panel.used_paths])
+            self.assertIn("test.css", [f[0] for f in self.panel.used_paths])
         finally:
             request_id_context_var.reset(token)
 
