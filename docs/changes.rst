@@ -10,6 +10,7 @@ Pending
   statement's scope on the installation documentation.
 * Changed ``StoredDebugToolbar.from_store`` to always create a panel key and
   class instance, regardless if any data was generated.
+* Fixed selenium tests for CI by using psycopg for Python 3.13 runs.
 
 6.0.0 (2025-07-22)
 ------------------
