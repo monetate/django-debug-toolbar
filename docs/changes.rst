@@ -8,6 +8,8 @@ Pending
 * Removed logging about the toolbar failing to serialize a value into JSON.
 * Moved the the import statement of ``debug_toolbar.urls`` to within the if
   statement's scope on the installation documentation.
+* Changed ``StoredDebugToolbar.from_store`` to always create a panel key and
+  class instance, regardless if any data was generated.
 
 6.0.0 (2025-07-22)
 ------------------
