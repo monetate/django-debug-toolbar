@@ -4,6 +4,9 @@ Change log
 Pending
 -------
 
+6.1.0 (2025-10-30)
+------------------
+
 * Added support for async to timer panel.
 * Added a note about the default password in ``make example``.
 * Removed logging about the toolbar failing to serialize a value into JSON.
