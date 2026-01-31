@@ -18,6 +18,12 @@ Pending
   ensure the latest static assets are used.
 * Fixed bug with ``CachePanel`` so the cache patching is only applied
   once.
+* Added ``debug_toolbar.store.CacheStore`` for storing toolbar data using
+  Django's cache framework. This provides persistence without requiring
+  database migrations, and works with any cache backend (Memcached, Redis,
+  database, file-based, etc.).
+* Added ``CACHE_BACKEND`` and ``CACHE_KEY_PREFIX`` settings to configure the
+  ``CacheStore``.
 
 6.2.0 (2026-01-20)
 ------------------
