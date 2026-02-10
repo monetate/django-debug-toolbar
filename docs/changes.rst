@@ -7,6 +7,8 @@ Pending
 * Replaced ``requirements_dev.txt`` file for ``pyproject.toml`` support with
   dependency groups.
 * Updated ReadTheDocs Python version to 3.13.
+* Modernize some panel styles and colors.
+* Standardize use of time/duration units and labels across panels.
 
 6.2.0 (2026-01-20)
 ------------------
