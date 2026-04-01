@@ -4,6 +4,9 @@ Change log
 Pending
 -------
 
+6.3.0 (2026-04-01)
+------------------
+
 * Replaced ``requirements_dev.txt`` file for ``pyproject.toml`` support with
   dependency groups.
 * Updated ReadTheDocs Python version to 3.13.
