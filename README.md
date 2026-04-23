@@ -5,7 +5,7 @@
 | Name                                                |    Stmts |     Miss |   Branch |   BrPart |   Cover |   Missing |
 |---------------------------------------------------- | -------: | -------: | -------: | -------: | ------: | --------: |
 | debug\_toolbar/\_\_init\_\_.py                      |        4 |        0 |        0 |        0 |    100% |           |
-| debug\_toolbar/\_compat.py                          |       11 |        0 |        2 |        0 |    100% |           |
+| debug\_toolbar/\_compat.py                          |       11 |        4 |        2 |        0 |     69% |      5-12 |
 | debug\_toolbar/\_stubs.py                           |       18 |        0 |        0 |        0 |    100% |           |
 | debug\_toolbar/apps.py                              |      112 |        5 |       42 |        3 |     95% |150, 181, 188-189, 255 |
 | debug\_toolbar/decorators.py                        |       28 |        0 |        6 |        0 |    100% |           |
@@ -45,14 +45,14 @@
 | debug\_toolbar/panels/timer.py                      |       61 |        5 |       10 |        4 |     85% |11-12, 31-34, 65-\>67, 82-\>84, 84-\>112 |
 | debug\_toolbar/panels/versions.py                   |       42 |        1 |       14 |        1 |     96% |        64 |
 | debug\_toolbar/sanitize.py                          |        6 |        0 |        0 |        0 |    100% |           |
-| debug\_toolbar/settings.py                          |       36 |        2 |        6 |        1 |     93% |   101-102 |
+| debug\_toolbar/settings.py                          |       36 |        2 |        6 |        1 |     93% |   102-103 |
 | debug\_toolbar/store.py                             |      240 |        5 |       34 |        6 |     96% |137-138, 154-\>exit, 178-\>exit, 208, 239, 282, 286-\>exit |
 | debug\_toolbar/templatetags/\_\_init\_\_.py         |        0 |        0 |        0 |        0 |    100% |           |
-| debug\_toolbar/toolbar.py                           |      141 |        6 |       30 |        1 |     95% |104-112, 159-\>171, 211-214 |
+| debug\_toolbar/toolbar.py                           |      141 |        6 |       30 |        1 |     95% |107-115, 162-\>174, 214-217 |
 | debug\_toolbar/urls.py                              |        4 |        0 |        0 |        0 |    100% |           |
 | debug\_toolbar/utils.py                             |      214 |        7 |       68 |        8 |     95% |30, 61, 121, 125-\>128, 144-\>143, 195-196, 200, 215 |
 | debug\_toolbar/views.py                             |       20 |        0 |        2 |        0 |    100% |           |
-| **TOTAL**                                           | **2545** |  **105** |  **628** |   **67** | **94%** |           |
+| **TOTAL**                                           | **2545** |  **109** |  **628** |   **67** | **94%** |           |
 
 
 ## Setup coverage badge
