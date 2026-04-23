@@ -9,6 +9,13 @@ Pending
 * Added a note to the prerequisites section of the installation docs
   about requiring an up-to-date browser.
 * Dropped support for Django 4.2 and Django 5.1 .
+* Updated to render the toolbar in a shadow DOM for better isolation
+  from the rest of the page. This can be disabled with the setting
+  ``USE_SHADOW_DOM``.
+* Note that custom themes overriding CSS variables on :root must move
+  those overrides to ``#djDebug``, and custom panels that rely on external
+  styles or DOM lookups reaching into the toolbar will need updates to
+  work with the shadow DOM.
 
 6.3.0 (2026-04-01)
 ------------------
