@@ -4,6 +4,9 @@ Change log
 Pending
 -------
 
+7.0.0 (2026-06-17)
+------------------
+
 * Prevent check from failing when ``ROOT_URLCONF`` is not defined.
 * Prevent toolbar storage from failing when serialized panel data contains
   mapping keys that are not JSON-compatible.
