@@ -22,6 +22,10 @@ Pending
 * Raised ``ImproperlyConfigured`` naming ``INSTALLED_APPS`` when the toolbar
   is imported without ``debug_toolbar`` installed, instead of a
   ``RuntimeError`` about the ``HistoryEntry`` model's ``app_label``.
+* Fixed the History panel crashing when captured request data includes a
+  key named ``items``. Django templates resolve dictionary keys before
+  methods, so ``data.items`` was that field's value rather than
+  ``dict.items()``.
 
 8.0.0 (2026-09-02)
 ------------------
