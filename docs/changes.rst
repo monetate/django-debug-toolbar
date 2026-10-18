@@ -31,6 +31,8 @@ Pending
 * ``Panel.get_headers()`` now returns a ``PanelHeaders`` instance with
   separate ``append`` and ``update`` dictionaries instead of a ``dict``.
   Third-party panels overriding it need to be updated.
+* Added open in editor functionality to templates panel using ``EDITOR``
+  setting.
 
 8.0.0 (2026-09-02)
 ------------------
