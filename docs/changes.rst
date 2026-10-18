@@ -31,6 +31,8 @@ Pending
 * ``Panel.get_headers()`` now returns a ``PanelHeaders`` instance with
   separate ``append`` and ``update`` dictionaries instead of a ``dict``.
   Third-party panels overriding it need to be updated.
+* Fixed the SQL panel's Explain action returning a 500 on databases that
+  don't support ``EXPLAIN``. It now shows an error instead.
 * Added open in editor functionality to templates panel using ``EDITOR``
   setting.
 
