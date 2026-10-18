@@ -26,6 +26,11 @@ Pending
   key named ``items``. Django templates resolve dictionary keys before
   methods, so ``data.items`` was that field's value rather than
   ``dict.items()``.
+* Fixed the toolbar overwriting a ``Server-Timing`` header set by the view.
+  The toolbar's timings are now appended to the existing value.
+* ``Panel.get_headers()`` now returns a ``PanelHeaders`` instance with
+  separate ``append`` and ``update`` dictionaries instead of a ``dict``.
+  Third-party panels overriding it need to be updated.
 
 8.0.0 (2026-09-02)
 ------------------

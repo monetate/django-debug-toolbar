@@ -147,3 +147,9 @@ def delayed_stylesheet_view(request):
     time.sleep(0.1)
     css = "html { --delayed-stylesheet: applied; }"
     return HttpResponse(css, content_type="text/css")
+
+
+def server_timing(request):
+    response = execute_sql(request)
+    response.headers["Server-Timing"] = 'existing_key;dur=100;desc="Details"'
+    return response

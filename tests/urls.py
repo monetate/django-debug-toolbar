@@ -41,6 +41,7 @@ urlpatterns = [
     ),
     path("login_without_redirect/", LoginView.as_view(redirect_field_name=None)),
     path("csp_view/", views.csp_view),
+    path("server-timing/", views.server_timing),
     path("admin/", admin.site.urls),
     path("__debug__/", include("debug_toolbar.urls")),
 ]
