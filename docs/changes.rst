@@ -3,6 +3,7 @@ Change log
 
 Pending
 
+* Added Datastar Signals to the third-party panel list.
 * Added a ``test_release`` workflow to build and publish development
   versions to TestPyPI.
 * Added support for Python 3.15.
