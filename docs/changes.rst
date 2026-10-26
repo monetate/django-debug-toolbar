@@ -3,6 +3,7 @@ Change log
 
 Pending
 
+* Added bottom padding to main panel for better readability
 * Clarified in the contributing documentation that developer tooling may
   require a newer supported Python.
 * Added Datastar Signals to the third-party panel list.
