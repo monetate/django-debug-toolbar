@@ -472,7 +472,9 @@
     height: 100%;
     overflow: auto;
     display: block;
-    padding: 0 10px 0 0;
+    /* border-box keeps the padding inside height: 100% */
+    box-sizing: border-box;
+    padding: 0 10px 50px 0;
 }
 
 #djDebug h3 {
