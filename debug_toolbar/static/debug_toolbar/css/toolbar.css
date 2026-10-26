@@ -472,6 +472,7 @@
     height: 100%;
     overflow: auto;
     display: block;
+    /* border-box keeps the padding inside height: 100% */
     box-sizing: border-box;
     padding: 0 10px 50px 0;
 }
